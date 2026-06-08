@@ -1,6 +1,8 @@
 index_title=WireGuard VPN
 config_title=WireGuard module configuration
 interfaces=Interfaces
+show_only=Show only
+show_all=All peers
 tab_interfaces=Interfaces
 tab_create=Generate peer
 new_interface=New interface
@@ -42,6 +44,7 @@ months=months
 expires=Expires
 expired=Expired
 no_interfaces=No WireGuard interfaces were found.
+no_peers_match=No peers match this filter.
 private_key=Private key
 address=Address
 listen_port=Listen port

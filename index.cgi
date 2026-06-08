@@ -16,6 +16,8 @@ my @tabs = (
 );
 my $mode = $in{'mode'} || "list";
 $mode = "list" if $mode ne "list" && $mode ne "create";
+my $show_only = $in{'show_only'} || "all";
+$show_only = "all" if $show_only !~ /\A(?:all|enabled|disabled|online|idle|never)\z/;
 print &ui_tabs_start(\@tabs, "mode", $mode, 1);
 
 print &ui_tabs_start_tab("mode", "list");
@@ -25,6 +27,19 @@ if (!@ifaces) {
     print "<p>$text{'no_interfaces'}</p>\n";
 }
 else {
+    print &ui_form_start("index.cgi", "get");
+    print &ui_hidden("mode", "list");
+    print &ui_table_start(undef, undef, 2);
+    print &ui_table_row($text{'show_only'}, &ui_select("show_only", $show_only,
+        [ [ "all", $text{'show_all'} ],
+          [ "enabled", $text{'enabled'} ],
+          [ "disabled", $text{'disabled'} ],
+          [ "online", $text{'online'} ],
+          [ "idle", $text{'idle'} ],
+          [ "never", $text{'never'} ] ]));
+    print &ui_table_end();
+    print &ui_form_end([ [ undef, $text{'show_only'} ] ]);
+
     my @headers = (
         "",
         $text{'interface'},
@@ -47,6 +62,7 @@ else {
         my $conf = &read_iface_config($iface);
         my @peers = &list_peers($conf);
         my %handshakes = &latest_handshakes($iface);
+        my $visible_peer_count = 0;
         my $iface_actions =
             "<a href='edit_conf.cgi?iface=" . &urlize($iface) . "'>$text{'edit'}</a> " .
             "<a href='add_peer.cgi?iface=" . &urlize($iface) . "'>$text{'add_peer'}</a> " .
@@ -55,27 +71,31 @@ else {
             "<a href='restart.cgi?iface=" . &urlize($iface) . "'>$text{'restart'}</a>";
 
         if (!@peers) {
-            push(@data, [
-                "",
-                &html_escape($iface),
-                $status,
-                "-",
-                "-",
-                "-",
-                "-",
-                "-",
-                "-",
-                "-",
-                "-",
-                "-",
-                $iface_actions,
-            ]);
+            if ($show_only eq "all") {
+                push(@data, [
+                    "",
+                    &html_escape($iface),
+                    $status,
+                    "-",
+                    "-",
+                    "-",
+                    "-",
+                    "-",
+                    "-",
+                    "-",
+                    "-",
+                    "-",
+                    $iface_actions,
+                ]);
+            }
             next;
         }
 
         for (my $i = 0; $i < @peers; $i++) {
             my $peer = $peers[$i];
             my $key = $peer->{'public_key'};
+            my $peer_state = &peer_filter_state($peer, $handshakes{$key});
+            next if !&peer_matches_filter($peer_state, $show_only);
             my $short = substr($key, 0, 12) . "...";
             my $name = $peer->{'name'} ? $peer->{'name'} : "-";
             my $config_status = $peer->{'disabled'} ? $text{'disabled'} : $text{'enabled'};
@@ -88,8 +108,8 @@ else {
 
             push(@data, [
                 { 'type' => 'checkbox', 'name' => 'd', 'value' => $iface . "|" . $key . "|" . ($peer->{'name'} || "") },
-                $i == 0 ? &html_escape($iface) : "",
-                $i == 0 ? $status : "",
+                $visible_peer_count == 0 ? &html_escape($iface) : "",
+                $visible_peer_count == 0 ? $status : "",
                 $config_status,
                 &html_escape($name),
                 $runtime_status,
@@ -99,17 +119,23 @@ else {
                 &html_escape($peer->{'allowed_ips'} || "-"),
                 &html_escape($peer->{'endpoint'} || "-"),
                 $download,
-                ($i == 0 ? $iface_actions : "") . $peer_actions,
+                ($visible_peer_count == 0 ? $iface_actions : "") . $peer_actions,
             ]);
+            $visible_peer_count++;
         }
     }
 
-    print &ui_form_columns_table(
-        "peer_action.cgi",
-        [ [ "enable", $text{'enable_selected_peers'} ],
-          [ "disable", $text{'disable_selected_peers'} ],
-          [ "delete", $text{'delete_selected_peers'} ] ],
-        1, [ ], [ ], \@headers, 100, \@data);
+    if (@data) {
+        print &ui_form_columns_table(
+            "peer_action.cgi",
+            [ [ "enable", $text{'enable_selected_peers'} ],
+              [ "disable", $text{'disable_selected_peers'} ],
+              [ "delete", $text{'delete_selected_peers'} ] ],
+            1, [ ], [ ], \@headers, 100, \@data);
+    }
+    else {
+        print "<p>$text{'no_peers_match'}</p>\n";
+    }
 }
 print &ui_tabs_end_tab();
 

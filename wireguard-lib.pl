@@ -215,6 +215,24 @@ sub peer_status_text {
     return $state . "<br><small>" . $text{'last_seen'} . ": " . &html_escape(&format_timestamp($timestamp)) . "</small>";
 }
 
+sub peer_filter_state {
+    my ($peer, $timestamp) = @_;
+    return "disabled" if $peer->{'disabled'};
+    return "never" if !$timestamp;
+
+    my $age = time() - $timestamp;
+    $age = 0 if $age < 0;
+    return $age <= 180 ? "online" : "idle";
+}
+
+sub peer_matches_filter {
+    my ($peer_state, $show_only) = @_;
+    $show_only ||= "all";
+    return 1 if $show_only eq "all";
+    return $peer_state ne "disabled" if $show_only eq "enabled";
+    return $peer_state eq $show_only;
+}
+
 sub format_timestamp {
     my ($timestamp) = @_;
     my @t = localtime($timestamp);
