@@ -25,16 +25,19 @@ connection status without editing `/etc/wireguard/*.conf` by hand.
 ## Install From Webmin
 
 In Webmin, open **Webmin -> Webmin Configuration -> Webmin Modules** and
-install from this URL:
+install the stable package from this URL:
+
+```text
+https://raw.githubusercontent.com/djamic/webmin_wireguard/v1.0.0/dist/wireguard_webmin.wbm.gz
+```
+
+For the newest build from `main`, use:
 
 ```text
 https://raw.githubusercontent.com/djamic/webmin_wireguard/main/dist/wireguard_webmin.wbm.gz
 ```
 
 Then open **Servers -> WireGuard VPN**.
-
-If GitHub raw cache has not updated yet, use the latest commit-specific package
-URL from the repository history.
 
 ## Install From Source
 
@@ -146,6 +149,14 @@ Implemented safety checks include:
 The module expects a Linux Webmin installation with WireGuard tools available.
 It was developed and tested with Debian, Webmin 2.641, and WireGuard interfaces
 managed by `wg-quick`.
+
+## Repository Topics
+
+Suggested GitHub topics:
+
+```text
+webmin wireguard vpn wireguard-vpn webmin-module linux debian
+```
 
 ## License
 
