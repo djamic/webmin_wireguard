@@ -10,5 +10,7 @@ my $file = &client_config_file($name);
 
 print "Content-Type: application/octet-stream\n";
 print "Content-Disposition: attachment; filename=\"$name.conf\"\n";
-print "X-Content-Type-Options: nosniff\n\n";
+print "X-Content-Type-Options: nosniff\n";
+print "Cache-Control: no-store\n";
+print "Pragma: no-cache\n\n";
 print &read_file_contents($file);

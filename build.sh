@@ -9,6 +9,7 @@ mkdir -p "$TMP"
 
 tar \
   --exclude='./.git' \
+  --exclude='./dist' \
   --exclude='./*.wbm.gz' \
   --exclude='./*.tar.gz' \
   -cf - . | tar -xf - -C "$TMP"

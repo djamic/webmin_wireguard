@@ -5,9 +5,10 @@ use WebminCore;
 our (%config, %text);
 
 &init_config();
+umask(077);
 
 sub wg_config_dir {
-    return $config{'wireguard_dir'} || "/etc/wireguard";
+    return &safe_dir_path($config{'wireguard_dir'} || "/etc/wireguard");
 }
 
 sub wg_cmd {
@@ -19,7 +20,7 @@ sub systemctl_cmd {
 }
 
 sub client_config_dir {
-    return $config{'client_config_dir'} || "/root";
+    return &safe_dir_path($config{'client_config_dir'} || "/root");
 }
 
 sub default_client_dns {
@@ -38,7 +39,22 @@ sub valid_interface {
 sub safe_command_path {
     my ($path) = @_;
     &error("Invalid command path") if !$path || $path !~ m!\A/[A-Za-z0-9_./+-]+\z!;
+    &error("Invalid command path") if $path =~ m!(?:^|/)\.\.(?:/|$)!;
     return $path;
+}
+
+sub safe_dir_path {
+    my ($path) = @_;
+    &error("Invalid directory path") if !$path || $path !~ m!\A/[A-Za-z0-9_./+-]+\z!;
+    &error("Invalid directory path") if $path =~ m!(?:^|/)\.\.(?:/|$)!;
+    $path =~ s!/+\z!! if $path ne "/";
+    return $path;
+}
+
+sub ip_cmd {
+    return "/usr/sbin/ip" if -x "/usr/sbin/ip";
+    return "/usr/bin/ip" if -x "/usr/bin/ip";
+    return "";
 }
 
 sub shell_quote {
@@ -60,6 +76,13 @@ sub clean_single_line {
     return $value;
 }
 
+sub clean_config_value {
+    my ($value, $label) = @_;
+    $value = "" if !defined($value);
+    &error("Invalid $label") if $value =~ /[\r\n]/;
+    return $value;
+}
+
 sub validate_dns {
     my ($dns) = @_;
     $dns = &clean_single_line($dns || &default_client_dns());
@@ -70,6 +93,34 @@ sub validate_dns {
 sub valid_cidr {
     my ($net) = @_;
     return defined($net) && $net =~ /\A(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\/(?:[0-9]|[12][0-9]|3[0-2])\z/;
+}
+
+sub valid_ipv6_cidr {
+    my ($net) = @_;
+    return defined($net) &&
+        $net =~ /\A[0-9A-Fa-f:]+\/(?:[0-9]|[1-9][0-9]|1[01][0-9]|12[0-8])\z/ &&
+        index($net, ":") >= 0;
+}
+
+sub valid_allowed_ip {
+    my ($net) = @_;
+    return &valid_cidr($net) || &valid_ipv6_cidr($net);
+}
+
+sub validate_allowed_ips {
+    my ($allowed_ips, $label) = @_;
+    $allowed_ips = &clean_config_value($allowed_ips, $label || "allowed IPs");
+    my @nets = grep { $_ ne "" } split(/[,\s]+/, $allowed_ips);
+    &error($text{'missing_allowed_ips'}) if !@nets;
+    foreach my $net (@nets) {
+        &error("Invalid network: " . &html_escape($net)) if !&valid_allowed_ip($net);
+    }
+    return join(", ", @nets);
+}
+
+sub valid_port {
+    my ($port) = @_;
+    return defined($port) && $port =~ /\A\d+\z/ && $port > 0 && $port <= 65535;
 }
 
 sub require_post {
@@ -157,13 +208,21 @@ sub create_interface {
     my $file = &iface_file($iface);
     &error($text{'interface_exists'}) if -e $file;
 
-    my $private_key = $opts->{'private_key'} || &generate_private_key();
+    my $private_key = &clean_config_value($opts->{'private_key'}, "private key") || &generate_private_key();
+    &error("Invalid private key") if !&valid_public_key($private_key);
+    my $address = &clean_config_value($opts->{'address'}, "address");
+    $address = &validate_allowed_ips($address, "address") if $address;
+    my $listen_port = &clean_config_value($opts->{'listen_port'}, "listen port");
+    &error("Invalid listen port") if $listen_port && !&valid_port($listen_port);
+    my $post_up = &clean_config_value($opts->{'post_up'}, "PostUp");
+    my $post_down = &clean_config_value($opts->{'post_down'}, "PostDown");
+
     my $conf = "[Interface]\n";
     $conf .= "PrivateKey = $private_key\n";
-    $conf .= "Address = " . $opts->{'address'} . "\n" if $opts->{'address'};
-    $conf .= "ListenPort = " . $opts->{'listen_port'} . "\n" if $opts->{'listen_port'};
-    $conf .= "PostUp = " . $opts->{'post_up'} . "\n" if $opts->{'post_up'};
-    $conf .= "PostDown = " . $opts->{'post_down'} . "\n" if $opts->{'post_down'};
+    $conf .= "Address = $address\n" if $address;
+    $conf .= "ListenPort = $listen_port\n" if $listen_port;
+    $conf .= "PostUp = $post_up\n" if $post_up;
+    $conf .= "PostDown = $post_down\n" if $post_down;
     &write_iface_config($iface, $conf);
 }
 
@@ -200,6 +259,7 @@ sub latest_handshakes {
     foreach my $line (split(/\n/, $out)) {
         my ($key, $timestamp) = split(/\s+/, $line);
         next if !$key || !defined($timestamp);
+        next if !&valid_public_key($key) || $timestamp !~ /\A\d+\z/;
         $handshakes{$key} = int($timestamp);
     }
     return %handshakes;
@@ -263,21 +323,30 @@ sub append_peer {
     my ($iface, $peer) = @_;
     &error($text{'missing_public_key'}) if !$peer->{'public_key'};
     &error($text{'missing_allowed_ips'}) if !$peer->{'allowed_ips'};
+    &error($text{'missing_public_key'}) if !&valid_public_key($peer->{'public_key'});
+    &error("Invalid preshared key") if $peer->{'preshared_key'} && !&valid_public_key($peer->{'preshared_key'});
 
     my $conf = &read_iface_config($iface);
     $conf =~ s/\s+\z/\n/s;
     $conf .= "\n" if $conf ne "" && $conf !~ /\n\n\z/s;
     my $name = $peer->{'name'} || "";
     $name =~ s/[\r\n]//g;
+    my $allowed_ips = &validate_allowed_ips($peer->{'allowed_ips'}, "allowed IPs");
+    my $client_allowed_ips = $peer->{'client_allowed_ips'} ?
+        &validate_allowed_ips($peer->{'client_allowed_ips'}, "client allowed IPs") : "";
+    my $endpoint = &clean_config_value($peer->{'endpoint'}, "endpoint");
+    my $keepalive = &clean_config_value($peer->{'persistent_keepalive'}, "persistent keepalive");
+    &error("Invalid persistent keepalive") if $keepalive && $keepalive !~ /\A\d+\z/;
+
     $conf .= "# BEGIN_PEER $name\n" if $name;
     $conf .= "# EXPIRES " . $peer->{'expires'} . "\n" if $peer->{'expires'};
-    $conf .= "# CLIENT_ALLOWED_IPS " . $peer->{'client_allowed_ips'} . "\n" if $peer->{'client_allowed_ips'};
+    $conf .= "# CLIENT_ALLOWED_IPS $client_allowed_ips\n" if $client_allowed_ips;
     $conf .= "[Peer]\n";
     $conf .= "PublicKey = " . $peer->{'public_key'} . "\n";
     $conf .= "PresharedKey = " . $peer->{'preshared_key'} . "\n" if $peer->{'preshared_key'};
-    $conf .= "AllowedIPs = " . $peer->{'allowed_ips'} . "\n";
-    $conf .= "Endpoint = " . $peer->{'endpoint'} . "\n" if $peer->{'endpoint'};
-    $conf .= "PersistentKeepalive = " . $peer->{'persistent_keepalive'} . "\n" if $peer->{'persistent_keepalive'};
+    $conf .= "AllowedIPs = $allowed_ips\n";
+    $conf .= "Endpoint = $endpoint\n" if $endpoint;
+    $conf .= "PersistentKeepalive = $keepalive\n" if $keepalive;
     $conf .= "# END_PEER $name\n" if $name;
     &write_iface_config($iface, $conf);
 }
@@ -301,8 +370,11 @@ sub server_endpoint {
     my $conf = &read_iface_config($iface);
     my ($host) = $conf =~ /^#[ \t]*ENDPOINT[ \t]+(\S+)[ \t]*$/mi;
     $host ||= &get_system_hostname();
+    $host = &clean_config_value($host, "endpoint host");
+    &error("Invalid endpoint host") if $host !~ /\A[0-9A-Za-z_.:-]+\z/;
     my ($port) = $conf =~ /^[ \t]*ListenPort[ \t]*=[ \t]*(\d+)[ \t]*$/mi;
     $port ||= "51820";
+    &error("Invalid listen port") if !&valid_port($port);
     return "$host:$port";
 }
 
@@ -363,12 +435,15 @@ sub generate_client_peer {
     my $private_key = &backquote_command("$cmd genkey 2>&1");
     &error("<pre>" . &html_escape($private_key) . "</pre>") if $?;
     $private_key =~ s/\s+\z//;
+    &error("Invalid generated private key") if !&valid_public_key($private_key);
     my $public_key = &backquote_command("printf %s " . &shell_quote($private_key) . " | $cmd pubkey 2>&1");
     &error("<pre>" . &html_escape($public_key) . "</pre>") if $?;
     $public_key =~ s/\s+\z//;
+    &error("Invalid generated public key") if !&valid_public_key($public_key);
     my $psk = &backquote_command("$cmd genpsk 2>&1");
     &error("<pre>" . &html_escape($psk) . "</pre>") if $?;
     $psk =~ s/\s+\z//;
+    &error("Invalid generated preshared key") if !&valid_public_key($psk);
 
     my ($server_allowed_ip, $client_address) = &next_client_address($iface);
     my $months = int($opts->{'months'} || 0);
@@ -414,14 +489,16 @@ sub client_allowed_ips_from_input {
     }
     @nets = grep { $_ ne "" } @nets;
     foreach my $net (@nets) {
-        &error("Invalid network: " . &html_escape($net)) if !&valid_cidr($net);
+        &error("Invalid network: " . &html_escape($net)) if !&valid_allowed_ip($net);
     }
     return @nets ? join(", ", @nets) : "0.0.0.0/0, ::/0";
 }
 
 sub list_route_networks {
     my @rows;
-    my $out = &backquote_command("ip -o -4 route show 2>/dev/null");
+    my $cmd = &ip_cmd();
+    return @rows if !$cmd;
+    my $out = &backquote_command("$cmd -o -4 route show 2>/dev/null");
     foreach my $line (split(/\n/, $out)) {
         next if $line =~ /^default\b/;
         my ($net) = $line =~ /^(\d+\.\d+\.\d+\.\d+\/\d+)\b/;
@@ -441,7 +518,7 @@ sub apply_peer_live {
     &error("Invalid preshared key") if $psk && !&valid_public_key($psk);
     foreach my $net (split(/[,\s]+/, $allowed_ips || "")) {
         next if $net eq "";
-        &error("Invalid allowed IP: " . &html_escape($net)) if !&valid_cidr($net);
+        &error("Invalid allowed IP: " . &html_escape($net)) if !&valid_allowed_ip($net);
     }
     return if !&iface_is_running($iface);
     my $cmd = &wg_cmd();
