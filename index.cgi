@@ -27,18 +27,21 @@ if (!@ifaces) {
     print "<p>$text{'no_interfaces'}</p>\n";
 }
 else {
+    print "<div style='margin: 10px 0 14px 0'>\n";
     print &ui_form_start("index.cgi", "get");
     print &ui_hidden("mode", "list");
-    print &ui_table_start(undef, undef, 2);
-    print &ui_table_row($text{'show_only'}, &ui_select("show_only", $show_only,
+    print "<b>$text{'show_only'}</b> ";
+    print &ui_select("show_only", $show_only,
         [ [ "all", $text{'show_all'} ],
           [ "enabled", $text{'enabled'} ],
           [ "disabled", $text{'disabled'} ],
           [ "online", $text{'online'} ],
           [ "idle", $text{'idle'} ],
-          [ "never", $text{'never'} ] ]));
-    print &ui_table_end();
-    print &ui_form_end([ [ undef, $text{'show_only'} ] ]);
+          [ "never", $text{'never'} ] ]);
+    print " ";
+    print &ui_submit($text{'show_only'});
+    print &ui_form_end();
+    print "</div>\n";
 
     my @headers = (
         "",

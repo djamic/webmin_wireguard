@@ -1,5 +1,5 @@
 name=WireGuard VPN
-desc=Manage WireGuard interfaces and peers
+desc=WireGuard VPN
 category=servers
 os_support=*-linux
 depends=core
