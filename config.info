@@ -1,0 +1,7 @@
+wireguard_dir=WireGuard configuration directory,0
+wg_cmd=Path to wg command,0
+wg_quick_cmd=Path to wg-quick command,0
+systemctl_cmd=Path to systemctl command,0
+client_config_dir=Client configuration directory,0
+default_client_dns=Default client DNS servers,0
+expire_check_minutes=Expiry check interval in minutes,0
