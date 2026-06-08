@@ -16,15 +16,24 @@ UI.
 - Edit raw interface configuration
 - Configure paths and defaults from Webmin module configuration
 
-## Install
+## Install From Webmin
+
+In Webmin, open **Webmin -> Webmin Configuration -> Webmin Modules** and
+install from this URL:
+
+```text
+https://raw.githubusercontent.com/djamic/webmin_wireguard/main/dist/wireguard_webmin.wbm.gz
+```
+
+Then open **Servers -> WireGuard VPN**.
+
+## Install From Source
 
 From this directory:
 
 ```sh
 sudo ./install.sh
 ```
-
-Then open Webmin and go to **Servers -> WireGuard VPN**.
 
 You can also build a Webmin module archive:
 
