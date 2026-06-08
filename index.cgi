@@ -6,9 +6,35 @@ require './wireguard-lib.pl';
 &print_header($text{'index_title'});
 
 my @ifaces = &list_interfaces();
-print &ui_buttons_start();
-print &ui_buttons_row("../config.cgi?wireguard_webmin", $text{'config_title'}, "");
-print &ui_buttons_end();
+print <<'EOF';
+<style>
+.wg-toolbar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 12px 0;
+}
+.wg-toolbar a,
+.wg-toolbar button {
+    background: #fff;
+    border: 1px solid #cfcfcf;
+    color: #0645ad;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1.3;
+    padding: 5px 10px;
+    text-decoration: none;
+}
+.wg-toolbar label {
+    font-weight: bold;
+    margin-right: 2px;
+}
+.wg-toolbar select {
+    min-width: 115px;
+}
+</style>
+EOF
 
 my @tabs = (
     [ "list", $text{'tab_interfaces'}, "index.cgi?mode=list" ],
@@ -27,10 +53,11 @@ if (!@ifaces) {
     print "<p>$text{'no_interfaces'}</p>\n";
 }
 else {
-    print "<div style='margin: 10px 0 14px 0'>\n";
-    print &ui_form_start("index.cgi", "get");
-    print &ui_hidden("mode", "list");
-    print "<b>$text{'show_only'}</b> ";
+    print "<div class='wg-toolbar'>\n";
+    print "<a href='../config.cgi?wireguard_webmin'>$text{'config_title'}</a>\n";
+    print "<form action='index.cgi' method='get' style='display: inline-flex; align-items: center; gap: 6px; margin: 0'>\n";
+    print "<input type='hidden' name='mode' value='list'>\n";
+    print "<label for='show_only'>$text{'show_only'}</label>\n";
     print &ui_select("show_only", $show_only,
         [ [ "all", $text{'show_all'} ],
           [ "enabled", $text{'enabled'} ],
@@ -38,9 +65,8 @@ else {
           [ "online", $text{'online'} ],
           [ "idle", $text{'idle'} ],
           [ "never", $text{'never'} ] ]);
-    print " ";
-    print &ui_submit($text{'show_only'});
-    print &ui_form_end();
+    print "<button type='submit'>$text{'show_only'}</button>\n";
+    print "</form>\n";
     print "</div>\n";
 
     my @headers = (
