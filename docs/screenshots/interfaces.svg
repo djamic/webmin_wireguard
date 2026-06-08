@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="760" viewBox="0 0 1440 760" role="img" aria-labelledby="title desc">
+  <title id="title">WireGuard VPN Webmin module interfaces screen</title>
+  <desc id="desc">A sanitized screenshot-style preview of the WireGuard VPN module showing interface controls, peer status filtering, and a peer table.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f6f6f6; }
+      .panel { fill: #fff; stroke: #d7d7d7; }
+      .line { stroke: #d7d7d7; }
+      .muted { fill: #666; }
+      .text { fill: #111; font: 14px Arial, Helvetica, sans-serif; }
+      .small { fill: #111; font: 12px Arial, Helvetica, sans-serif; }
+      .title { fill: #111; font: 24px Arial, Helvetica, sans-serif; }
+      .tab { fill: #fff; stroke: #d7d7d7; }
+      .tab-inactive { fill: #fff; }
+      .button { fill: #fff; stroke: #c9c9c9; }
+      .link { fill: #0645ad; font: 14px Arial, Helvetica, sans-serif; }
+      .head { fill: #fafafa; }
+      .row { fill: #fff; }
+      .row-alt { fill: #f3f3f3; }
+      .online { fill: #087a2f; font: 14px Arial, Helvetica, sans-serif; }
+      .idle { fill: #9a6200; font: 14px Arial, Helvetica, sans-serif; }
+      .disabled { fill: #555; font: 14px Arial, Helvetica, sans-serif; }
+      .never { fill: #111; font: 14px Arial, Helvetica, sans-serif; }
+      .chip { fill: #eef6ff; stroke: #c8def7; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1440" height="760"/>
+  <rect class="panel" x="24" y="22" width="1392" height="706"/>
+
+  <text class="title" x="58" y="61">WireGuard VPN</text>
+  <path d="M39 35l5.5 11.2 12.3 1.8-8.9 8.7 2.1 12.3L39 63.2 28 69l2.1-12.3-8.9-8.7 12.3-1.8z" fill="none" stroke="#c7c7c7" stroke-width="2"/>
+  <rect class="button" x="1368" y="32" width="36" height="36"/>
+  <text class="muted" x="1379" y="56" style="font: 18px Arial, Helvetica, sans-serif;">*</text>
+  <line class="line" x1="24" y1="86" x2="1416" y2="86"/>
+
+  <g transform="translate(36 112)">
+    <rect class="button" x="0" y="0" width="190" height="34"/>
+    <text class="text" x="14" y="22">Module configuration</text>
+
+    <rect class="tab" x="0" y="58" width="96" height="44"/>
+    <text class="text" x="20" y="85">Interfaces</text>
+    <text class="link" x="118" y="85">Generate peer</text>
+    <line class="line" x1="0" y1="102" x2="1368" y2="102"/>
+
+    <g transform="translate(0 122)">
+      <rect class="button" x="0" y="0" width="190" height="34"/>
+      <text class="link" x="14" y="22">WireGuard settings</text>
+      <text class="text" x="218" y="22" style="font-weight: bold;">Show only</text>
+      <rect class="button" x="298" y="3" width="116" height="28"/>
+      <text class="text" x="310" y="22">All peers</text>
+      <path d="M394 14l5 6 5-6z" fill="#222"/>
+      <rect class="button" x="424" y="0" width="70" height="34"/>
+      <text class="text" x="442" y="22">Apply</text>
+    </g>
+
+    <g transform="translate(0 178)">
+      <rect class="button" x="0" y="0" width="86" height="30"/>
+      <text class="small" x="14" y="20">Select all</text>
+      <rect class="button" x="96" y="0" width="118" height="30"/>
+      <text class="small" x="112" y="20">Invert selection</text>
+    </g>
+
+    <g transform="translate(0 222)">
+      <rect class="panel" x="0" y="0" width="1368" height="430"/>
+      <rect class="head" x="0" y="0" width="1368" height="34"/>
+      <line class="line" x1="0" y1="34" x2="1368" y2="34"/>
+      <text class="text" x="48" y="23">Interface</text>
+      <text class="text" x="144" y="23">Status</text>
+      <text class="text" x="214" y="23">Enabled</text>
+      <text class="text" x="292" y="23">Peer name</text>
+      <text class="text" x="414" y="23">Peer status</text>
+      <text class="text" x="574" y="23">Expires</text>
+      <text class="text" x="654" y="23">Access networks</text>
+      <text class="text" x="804" y="23">Public key</text>
+      <text class="text" x="934" y="23">Allowed IPs</text>
+      <text class="text" x="1048" y="23">Endpoint</text>
+      <text class="text" x="1138" y="23">Client config</text>
+      <text class="text" x="1262" y="23">Actions</text>
+
+      <g transform="translate(0 34)">
+        <rect class="row" x="0" y="0" width="1368" height="38"/>
+        <rect class="button" x="12" y="10" width="16" height="16"/>
+        <text class="text" x="52" y="24">wg0</text>
+        <text class="text" x="146" y="24">Running</text>
+        <text class="text" x="216" y="24">Enabled</text>
+        <text class="text" x="294" y="24">alice</text>
+        <text class="never" x="416" y="24">Never</text>
+        <text class="text" x="576" y="24">Unlimited</text>
+        <text class="text" x="656" y="24">0.0.0.0/0, ::/0</text>
+        <text class="text" x="806" y="24">V3a9mKQe...</text>
+        <text class="text" x="936" y="24">10.22.0.2/32</text>
+        <text class="text" x="1050" y="24">-</text>
+        <text class="link" x="1140" y="24">Download</text>
+        <text class="link" x="1264" y="24">Edit Add peer Start Stop Restart</text>
+      </g>
+
+      <g transform="translate(0 72)">
+        <rect class="row-alt" x="0" y="0" width="1368" height="38"/>
+        <rect class="button" x="12" y="10" width="16" height="16"/>
+        <text class="text" x="216" y="24">Enabled</text>
+        <text class="text" x="294" y="24">bob</text>
+        <text class="online" x="416" y="18">Online</text>
+        <text class="small" x="416" y="34">Last seen: 2026-06-08 15:42</text>
+        <text class="text" x="576" y="24">Unlimited</text>
+        <text class="text" x="656" y="24">10.0.0.0/8</text>
+        <text class="text" x="806" y="24">hL8u19aP...</text>
+        <text class="text" x="936" y="24">10.22.0.3/32</text>
+        <text class="text" x="1050" y="24">-</text>
+        <text class="link" x="1140" y="24">Download</text>
+      </g>
+
+      <g transform="translate(0 110)">
+        <rect class="row" x="0" y="0" width="1368" height="46"/>
+        <rect class="button" x="12" y="14" width="16" height="16"/>
+        <text class="text" x="216" y="28">Enabled</text>
+        <text class="text" x="294" y="28">phone</text>
+        <text class="idle" x="416" y="20">Idle</text>
+        <text class="small" x="416" y="38">Last seen: 2026-06-08 10:40</text>
+        <text class="text" x="576" y="28">2026-07-08</text>
+        <text class="text" x="656" y="28">192.168.1.0/24</text>
+        <text class="text" x="806" y="28">kaGfE88R...</text>
+        <text class="text" x="936" y="28">10.22.0.4/32</text>
+        <text class="text" x="1050" y="28">-</text>
+        <text class="link" x="1140" y="28">Download</text>
+      </g>
+
+      <g transform="translate(0 156)">
+        <rect class="row-alt" x="0" y="0" width="1368" height="38"/>
+        <rect class="button" x="12" y="10" width="16" height="16"/>
+        <text class="text" x="216" y="24">Disabled</text>
+        <text class="text" x="294" y="24">guest</text>
+        <text class="disabled" x="416" y="24">Disabled</text>
+        <text class="text" x="576" y="24">Unlimited</text>
+        <text class="text" x="656" y="24">0.0.0.0/0, ::/0</text>
+        <text class="text" x="806" y="24">dJv92Psk...</text>
+        <text class="text" x="936" y="24">10.22.0.5/32</text>
+        <text class="text" x="1050" y="24">-</text>
+        <text class="link" x="1140" y="24">Download</text>
+      </g>
+
+      <g transform="translate(0 194)">
+        <rect class="row" x="0" y="0" width="1368" height="38"/>
+        <rect class="button" x="12" y="10" width="16" height="16"/>
+        <text class="text" x="216" y="24">Enabled</text>
+        <text class="text" x="294" y="24">admin-laptop</text>
+        <text class="never" x="416" y="24">Never</text>
+        <text class="text" x="576" y="24">2026-09-06</text>
+        <text class="text" x="656" y="24">172.16.0.0/12</text>
+        <text class="text" x="806" y="24">qP6hML0n...</text>
+        <text class="text" x="936" y="24">10.22.0.6/32</text>
+        <text class="text" x="1050" y="24">-</text>
+        <text class="link" x="1140" y="24">Download</text>
+      </g>
+    </g>
+  </g>
+</svg>
