@@ -1,6 +1,7 @@
 # Webmin WireGuard VPN Module
 
-Webmin module for managing WireGuard interfaces and clients from the Webmin UI.
+Webmin module for managing WireGuard interfaces and clients from the Webmin
+UI.
 
 ## Features
 
@@ -35,8 +36,10 @@ The output is `wireguard_webmin.wbm.gz`.
 
 ## Notes
 
-Webmin must run with permissions that can read and write the WireGuard configuration directory and manage `wg-quick@...` services.
+Webmin must run with permissions that can read and write the WireGuard
+configuration directory and manage `wg-quick@...` services.
 
-Generated client configs are stored in `/root` by default. Change `client_config_dir` from Webmin module configuration if needed.
+Generated client configs are stored in `/root` by default. Change
+`client_config_dir` from Webmin module configuration if needed.
 
 This module is intended for trusted Webmin administrators only.
