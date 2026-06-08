@@ -1,0 +1,7 @@
+*.wbm.gz
+*.tar.gz
+*.tmp
+*~
+.DS_Store
+.idea/
+.vscode/
