@@ -1,0 +1,7 @@
+wireguard_dir=/etc/wireguard
+wg_cmd=/usr/bin/wg
+wg_quick_cmd=/usr/bin/wg-quick
+systemctl_cmd=/usr/bin/systemctl
+client_config_dir=/root
+default_client_dns=8.8.8.8, 8.8.4.4
+expire_check_minutes=5
