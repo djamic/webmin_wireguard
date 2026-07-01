@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+- Removed the invalid `depends=core` module dependency that prevented Webmin's
+  module installer from installing the package.
+
 ## 1.0.1
 
 - Fixed the Webmin module package layout so Webmin's module installer sees

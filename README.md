@@ -28,7 +28,7 @@ In Webmin, open **Webmin -> Webmin Configuration -> Webmin Modules** and
 install the stable package from this URL:
 
 ```text
-https://raw.githubusercontent.com/djamic/webmin_wireguard/v1.0.1/dist/wireguard_webmin.wbm.gz
+https://raw.githubusercontent.com/djamic/webmin_wireguard/v1.0.2/dist/wireguard_webmin.wbm.gz
 ```
 
 For the newest build from `main`, use:

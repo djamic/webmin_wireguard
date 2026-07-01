@@ -2,4 +2,3 @@ name=WireGuard VPN
 desc=WireGuard VPN
 category=servers
 os_support=*-linux
-depends=core
