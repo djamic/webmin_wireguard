@@ -24,10 +24,10 @@ find "$TARGET" -name '*.cgi' -exec chmod 0755 {} \;
 find "$TARGET" -name '*.pl' -exec chmod 0755 {} \;
 
 if [ -d /etc/cron.d ]; then
-  cat > /etc/cron.d/wireguard_webmin <<EOF
+  cat > /etc/cron.d/$MODULE <<EOF
 */5 * * * * root $TARGET/expire_peers.pl >/dev/null 2>&1
 EOF
-  chmod 0644 /etc/cron.d/wireguard_webmin
+  chmod 0644 /etc/cron.d/$MODULE
 fi
 
 if [ -f /etc/webmin/webmin.acl ] && ! grep -q "^root:.* $MODULE\\b\\|^root:.*:.*\\b$MODULE\\b" /etc/webmin/webmin.acl; then

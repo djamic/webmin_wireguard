@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1
+
+- Fixed the Webmin module package layout so Webmin's module installer sees
+  `wireguard_webmin/module.info` instead of treating support directories as
+  separate modules.
+- Added Webmin post-install and uninstall hooks for the peer expiry cron job
+  when installing from the Webmin UI.
+
 ## 1.0.0
 
 - First stable public package.
